@@ -12,6 +12,7 @@ services:
             - type: bind
               source: ./influxdb
               target: /var/lib/influxdb
+        user: "${PWD_USER:-1000:1000}"
         ports:
             - "${INFLUXDB_PORTS:-8086:8086}"
         env_file:
