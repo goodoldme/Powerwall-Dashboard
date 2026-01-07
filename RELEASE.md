@@ -1,5 +1,33 @@
 # RELEASE NOTES
 
+## v5.0.1 - Firmware 25.42.2+ Support
+
+### pyPowerwall Update
+
+* Update pypowerwall to v0.14.6 - Firmware 25.42.2+ support for gzip-compressed TEDAPI responses.
+  - Add gzip decompression support for firmware 25.42.2+ TEDAPI responses - Fix by @bolagnaise in https://github.com/jasonacox/pypowerwall/pull/251
+  - Gateway firmware 25.42.2 and later returns gzip-compressed responses for DIN and other TEDAPI endpoints
+  - Added `decompress_response()` helper function to handle both compressed and uncompressed responses transparently
+  - Updated all TEDAPI methods (`get_din()`, `get_config()`, `get_status()`, `get_device_controller()`, `get_firmware_version()`, `get_components()`, `get_battery_block()`) to decompress responses
+  - Added error handling for UnicodeDecodeError in DIN decode operation to gracefully handle corrupted or invalid responses
+  - Maintains backward compatibility with older firmware versions that return uncompressed responses
+
+## v5.0.0 - Grafana Upgrade
+
+### Major Updates
+
+* **Grafana Upgrade to v12.3**: Major version upgrade from Grafana 9.1.2 to 12.3-ubuntu, bringing significant improvements in performance, security, and features.
+  - Enhanced data source proxy with improved connection handling
+  - Better query performance and visualization capabilities
+  - Updated dashboard compatibility and new visualization options
+  - Improved security with latest upstream patches
+
+### Breaking Changes
+
+* **Dashboards**: Some older dashboard panels may need updates for compatibility with Grafana 12. A new dashboard.json has been added that updates panels: Savings, Self-Powered, and Current State.
+
+**Note**: This is a major version upgrade.
+
 ## v4.9.0 - Performance Improvements
 
 ### Proxy t86 (20 Dec 2025)
