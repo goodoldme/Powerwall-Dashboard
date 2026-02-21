@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+## v5.0.4 - Alerts Dashboard Fix
+
+### Dashboard Updates
+
+* Fixed Alerts State Timeline panel in Grafana 12 which was displaying empty rows for alert types that had no occurrences during the selected time period.
+  - **Problem**: The `state-timeline` panel was rendering a row for every alert field returned by InfluxDB, even when the field contained only `0` or `null` values throughout the selected time range. This resulted in a large number of empty, uninformative rows cluttering the panel.
+  - **Fix**: Added a `byValue` field override using Grafana's built-in "Fields with values" matcher, which hides any series where the maximum value does not equal `1`. A secondary `byType: time` override ensures the Time field is never inadvertently hidden by the first rule. Only alert rows that actually triggered (have at least one value of `1`) during the selected time range are displayed.
+  - Changed the Alerts query from table format (`SELECT *::field`) to time series format (`SELECT max(*) ... GROUP BY time() fill(none)`) and back to table format with proper override-based filtering to resolve "Data outside time range" UI errors.
+  - Updated field rename transformation regex from `max_(.*)` → `$1` to `(alerts\.)?max_(.*)` → `$2` to strip the `alerts.max_` measurement prefix from row labels.
+
 ## v5.0.3 - Grid Outage Fix
 
 ### pyPowerwall Update
