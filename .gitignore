@@ -35,6 +35,7 @@ grafana/alerting/
 grafana/csv/
 grafana/grafana.db
 grafana/plugins/
+grafana/provisions/datasources/sunandmoon.yml
 
 influxdb/meta/
 influxdb/wal/
