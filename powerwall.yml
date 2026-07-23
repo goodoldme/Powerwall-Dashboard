@@ -16,6 +16,9 @@ services:
             - type: bind
               source: ./influxdb
               target: /var/lib/influxdb
+        user: "${PWD_USER:-1000:1000}"
+        networks:
+            - powerwall_net
         ports:
             - "${INFLUXDB_PORTS:-8086:8086}"
         env_file:
@@ -37,8 +40,14 @@ services:
               source: .auth
               target: /app/.auth
         user: "${PWD_USER:-1000:1000}"
-        ports:
-            - "${PYPOWERWALL_PORTS:-8675:8675}"
+        networks:
+            - powerwall_net
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=powerwall_net"
+            - "traefik.http.routers.pypowerwall.rule=Host(`powerwall.$MY_DOMAIN`)"
+            - "traefik.http.routers.pypowerwall.entrypoints=powerwall_secure"
+            - "traefik.http.services.pypowerwall.loadbalancer.server.port=8675"
         environment:
             - PW_AUTH_PATH=.auth
         env_file:
@@ -56,6 +65,8 @@ services:
         hostname: telegraf
         restart: unless-stopped
         user: "${PWD_USER:-1000:1000}"
+        networks:
+            - powerwall_net
         command: [
             "telegraf",
             "--config",
@@ -104,8 +115,14 @@ services:
             - type: bind
               source: ./grafana
               target: /var/lib/grafana
-        ports:
-            - "${GRAFANA_PORTS:-9000:9000}"
+        networks:
+            - powerwall_net
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=powerwall_net"
+            - "traefik.http.routers.powerwall.rule=Host(`powerwall.$MY_DOMAIN`)"
+            - "traefik.http.routers.powerwall.entrypoints=websecure"
+            - "traefik.http.services.powerwall.loadbalancer.server.port=9000"
         env_file:
             - grafana.env
         depends_on:
@@ -128,6 +145,8 @@ services:
               source: ./weather
               target: /var/lib/weather
               read_only: true
+        networks:
+            - powerwall_net
         ports:
             - "${WEATHER411_PORTS:-8676:8676}"
         environment:
@@ -140,3 +159,7 @@ services:
             timeout: 10s
             retries: 3
             start_period: 60s
+
+networks:
+  powerwall_net:
+    external: true
