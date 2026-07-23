@@ -1,5 +1,6 @@
 # Ignore common local files
 .DS_Store
+tz
 
 # VisualStudio
 .vs/
@@ -20,6 +21,7 @@ influxdb.env
 powerwall.extend.yml
 pypowerwall.env
 telegraf.local
+telegraf.conf
 
 # Auth files
 .auth/
