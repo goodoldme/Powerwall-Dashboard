@@ -1377,7 +1377,7 @@ def update_influx(start=None, end=None, periods=None):
 # MAIN
 
 # Create InfluxDB client instance
-client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB)
+client = InfluxDBClient(host=IHOST, port=IPORT, username=IUSER, password=IPASS, database=IDB, ssl=True)
 
 if args.remove and not (args.login or args.setup):
     # Get start/end datetimes from command line arguments
