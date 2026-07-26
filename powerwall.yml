@@ -19,8 +19,12 @@ services:
         user: "${PWD_USER:-1000:1000}"
         networks:
             - powerwall_net
-        ports:
-            - "${INFLUXDB_PORTS:-8086:8086}"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=powerwall_net"
+            - "traefik.http.routers.influxdb.rule=Host(`influxdb.$MY_DOMAIN`)"
+            - "traefik.http.routers.influxdb.entrypoints=websecure"
+            - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
         env_file:
             - influxdb.env
         healthcheck:
@@ -147,8 +151,6 @@ services:
               read_only: true
         networks:
             - powerwall_net
-        ports:
-            - "${WEATHER411_PORTS:-8676:8676}"
         environment:
             - WEATHERCONF=/var/lib/weather/weather411.conf
         depends_on:
