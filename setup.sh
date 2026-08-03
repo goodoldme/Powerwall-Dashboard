@@ -800,14 +800,10 @@ fi
 
 # Set up Influx
 echo "Waiting for InfluxDB to start..."
-until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{end}}' influxdb 2>/dev/null || true)" = "healthy" ]; do
+until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8086/ping)" = "204" ]; do
     printf '.'
     sleep 5
 done
-#until running http://localhost:8086/ping 204 2>/dev/null; do
-#    printf '.'
-#    sleep 5
-#done
 echo " up!"
 sleep 2
 echo "Setup InfluxDB Data... ('already exist' errors harmless)"
