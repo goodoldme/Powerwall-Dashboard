@@ -63,7 +63,7 @@ version_lt() {
 # Because this file can be upgraded, don't use it to run the upgrade
 if [ "$0" != "tmp.sh" ]; then
     # Grab latest upgrade script from GitHub and run it
-    curl -sL --output tmp.sh https://raw.githubusercontent.com/jasonacox/Powerwall-Dashboard/main/upgrade.sh
+    curl -sL --output tmp.sh https://raw.githubusercontent.com/goodoldme/Powerwall-Dashboard/main/upgrade.sh
     exec bash tmp.sh upgrade
 fi
 
