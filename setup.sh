@@ -802,7 +802,7 @@ fi
 echo "Waiting for InfluxDB to start..."
 until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{end}}' influxdb 2>/dev/null || true)" = "healthy" ]; do
     printf '.'
-  sleep 5
+    sleep 5
 done
 #until running http://localhost:8086/ping 204 2>/dev/null; do
 #    printf '.'
