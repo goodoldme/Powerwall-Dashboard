@@ -1,11 +1,31 @@
 # RELEASE NOTES
 
+## v5.2.4 - Upgrade pypowerwall proxy to v0.17.0t100 (SolarOnly recovery fix)
+
+### Updates
+
+* **pypowerwall proxy `0.17.0t100`** — bumps the pinned proxy image from `0.16.2t97`. Notable changes since 0.16.2:
+    * **fix: TEDAPI auto-recovery wedge** — after a fully-failed reconnect attempt, the SolarOnly fallback recovery thread could stall permanently, leaving the proxy serving solar-only data until the container was restarted. Recovery now retries reliably (initial 60s interval, capped at 300s). Reported by @dthorndyke ([pypowerwall#366](https://github.com/jasonacox/pypowerwall/issues/366), fixed in [pypowerwall#367](https://github.com/jasonacox/pypowerwall/pull/367), shipped in pypowerwall v0.16.4). This is the "no longer recovers from SolarOnly mode after upgrading to v5.2.3" symptom reported in [#855](https://github.com/jasonacox/Powerwall-Dashboard/discussions/855) — the underlying network drops to the TEDAPI gateway path are unchanged, but the proxy now recovers from them again.
+    * **feat(tedapi):** lifetime energy accumulators merged into `/api/meters/aggregates` ([pypowerwall#372](https://github.com/jasonacox/pypowerwall/pull/372), pypowerwall v0.16.5)
+    * **feat(proxy):** optional bearer-token auth mode for the proxy API ([pypowerwall#359](https://github.com/jasonacox/pypowerwall/pull/359) by **@Nexarian**, pypowerwall v0.17.0)
+    * **fix(tedapi):** `TEDAPIApiVersion` is now comparable, and a `Content-Type` typo (`octet-string` → `octet-stream`) was corrected ([pypowerwall#363](https://github.com/jasonacox/pypowerwall/pull/363), [pypowerwall#364](https://github.com/jasonacox/pypowerwall/pull/364) by **@Nexarian**)
+
+No dashboard re-import is needed — run `./upgrade.sh` and the stack is recreated with the new image. `PW_TEDAPI_RECOVERY` remains on by default (`yes`).
+
+### Contributors
+
+Thanks to **@ViktorJp** for reporting the SolarOnly recovery failure on v5.2.3 ([#855](https://github.com/jasonacox/Powerwall-Dashboard/discussions/855)), to **@dthorndyke** for the precise upstream report of the recovery wedge ([pypowerwall#366](https://github.com/jasonacox/pypowerwall/issues/366)), and to **@Nexarian** for the bearer auth mode and TEDAPI fixes carried in this image.
+
 ## v5.2.3 - Powerwall MCP server & pypowerwall time series data directory
 
 ### New Features
 
 * **`tools/powerwall-mcp/`** — a new optional, self-contained MCP (Model Context Protocol) server that lets AI agents (Claude, Open WebUI, Hermes, etc.) query the dashboard's InfluxDB 1.8 data in plain language. It understands that the Telegraf exporter writes the same measurement names into multiple retention policies (`autogen`, `raw`, `vitals`, `kwh`, `daily`, `grid`, `pod`, `alerts`), so it can generate correct queries against the right data. Includes a standalone `Dockerfile`/`docker-compose.yml` (separate from the main dashboard stack), SELECT-only query validation, optional bearer-token auth, bounded query results, and a mock client with regression tests. Based on [ampersandru/powerwall-dashboard-mcp](https://github.com/ampersandru/powerwall-dashboard-mcp) (MIT-licensed, contributed by the original author). ([PR #850](https://github.com/jasonacox/Powerwall-Dashboard/pull/850) by **@jasonacox-sam**, closes [#848](https://github.com/jasonacox/Powerwall-Dashboard/issues/848))
 * **pypowerwall time series data directory** — laying groundwork for an upcoming `pypowerwall-server` time series feature (which will eventually replace the current proxy), `powerwall.yml` now bind-mounts a new `.pypowerwall_data/` directory to `/data` in the `pypowerwall` container. `setup.sh` and `upgrade.sh` create this directory automatically and chown it to `PWD_USER` (the uid:gid the container actually runs as, per `powerwall.yml`) so Docker doesn't auto-create it as `root` on first container start — which would otherwise cause permission errors, including for installs where the configured `PWD_USER` differs from the invoking host user. `verify.sh` now also checks that `.pypowerwall_data/` exists and is writable by the `pypowerwall` container.
+
+### Updates
+
+* **weather411 v0.2.5** — hardened the OpenWeatherMap fetch loop: the configured `TIMEOUT` is now actually passed to the HTTP request (previously it was read and reported but never used, so a hung connect/read could stall the fetch thread indefinitely), non-200 responses now log the HTTP status code along with OpenWeatherMap's error message (e.g. `401 Invalid API key`, `429 rate limited`), and exception handlers now report the real underlying error (DNS failure, connection refused, TLS, JSON decode, etc.) instead of a generic message — all on stderr, so the detail is visible in `docker logs` even with `DEBUG` disabled. Same treatment for the InfluxDB write error path. Inspired by the debugging of [#849](https://github.com/jasonacox/Powerwall-Dashboard/discussions/849) (thanks @anderep!).
 
 ### Contributors
 
