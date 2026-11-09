@@ -20,6 +20,7 @@ grafana.env
 influxdb.env
 powerwall.extend.yml
 pypowerwall.env
+pypowerwall.env.prev
 telegraf.local
 telegraf.conf
 
@@ -57,6 +58,7 @@ tools/weather-history/weather-history.conf
 tools/ecowitt-weather-history/ecowitt-weather-history.conf
 tools/export/export.csv
 tools/export/export.xz
+tools/export/outages.csv
 issues/*
 sync.sh
 *.pyc
