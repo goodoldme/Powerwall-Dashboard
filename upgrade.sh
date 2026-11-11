@@ -69,9 +69,13 @@ if [ -z "${PWD_UPGRADE_RELEASE}" ]; then
     if [ -n "${BASE_TAG}" ]; then
         BASE=$(git rev-parse "${BASE_TAG}^{commit}")
     fi
+    UPGRADE_REMOTE="origin"
+    if git remote | grep -qx upstream; then
+        UPGRADE_REMOTE="upstream"
+    fi
     # --force: follow tags the maintainers re-point (a plain fetch refuses to update them)
-    if ! git fetch --tags --force --quiet; then
-        echo "ERROR: Unable to fetch releases from GitHub. Check your network and try again."
+    if ! git fetch --tags --force --quiet "${UPGRADE_REMOTE}"; then
+        echo "ERROR: Unable to fetch releases from ${UPGRADE_REMOTE}. Check your network and try again."
         exit 1
     fi
     RELEASE=$(latest_release)
